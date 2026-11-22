@@ -10,7 +10,7 @@ load_dotenv()
 os.environ["SSL_CERT_FILE"] = certifi.where()
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage
 from langgraph.graph import StateGraph, START, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -20,17 +20,12 @@ from tools import tools
 Path("data").mkdir(exist_ok=True)
 
 
-# Update default and allowed models to use Gemini 2.5
-DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+# Groq-hosted Qwen model (requires GROQ_API_KEY in the environment)
+DEFAULT_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
 
 ALLOWED_MODELS = {
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-    "gemini-2.5-flash-lite", # Included the lite version if needed
-    "gemini-1.5-flash",      # Kept for fallback compatibility 
-    "gemini-1.5-pro"
+    "qwen/qwen3.8-27b",
 }
-
 
 
 SYSTEM_PROMPT = """
@@ -56,7 +51,6 @@ Rules:
 """
 
 
-
 def normalize_model_name(model_name: str | None) -> str:
     """
     Validate selected model from frontend.
@@ -74,20 +68,18 @@ def normalize_model_name(model_name: str | None) -> str:
     return model_name
 
 
-
-
 def build_agent(model_name: str):
     """
-    Build one LangGraph agent for a selected Gemini model.
+    Build one LangGraph agent for a selected Groq model.
     """
 
     selected_model = normalize_model_name(model_name)
 
-    # Initialize ChatGoogleGenerativeAI
-    llm = ChatGoogleGenerativeAI(
+    # ChatGroq reads GROQ_API_KEY from the environment
+    llm = ChatGroq(
         model=selected_model,
         temperature=0.3,
-        streaming=True
+        streaming=True,
     )
 
     llm_with_tools = llm.bind_tools(tools)

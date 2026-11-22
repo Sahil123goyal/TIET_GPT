@@ -10,7 +10,7 @@ os.environ["SSL_CERT_FILE"] = certifi.where()
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
 from langchain_chroma import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -22,15 +22,20 @@ Path("uploads").mkdir(exist_ok=True)
 Path("chroma_db").mkdir(exist_ok=True)
 
 
-# Embeddings model
-embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001")
+# Local Hugging Face embeddings model (384-dimensional, runs on CPU)
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={"device": "cpu"},
+    encode_kwargs={"normalize_embeddings": True},
+)
 
+# New collection name: embedding dimensions changed (Gemini -> MiniLM),
+# so the old collection cannot be reused.
 vectorstore = Chroma(
-    collection_name="agentic_chatbot_docs",
+    collection_name="agentic_chatbot_docs_minilm",
     embedding_function=embeddings,
     persist_directory="chroma_db"
 )
-
 
 
 def read_file_text(file_path: str) -> str:
@@ -56,17 +61,17 @@ def read_file_text(file_path: str) -> str:
     raise ValueError("Unsupported file type. Upload PDF, DOCX, TXT, MD, PY, or CSV.")
 
 
-
-
 def add_document_to_rag(file_path: str, thread_id: str):
     text = read_file_text(file_path)
 
     if not text.strip():
         raise ValueError("No text could be extracted from this file.")
 
+    # all-MiniLM-L6-v2 truncates input at 256 word pieces, so keep chunks
+    # a bit smaller than before to avoid losing text at the end of each chunk.
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=900,
-        chunk_overlap=150
+        chunk_size=700,
+        chunk_overlap=100
     )
 
     chunks = splitter.split_text(text)
@@ -88,9 +93,6 @@ def add_document_to_rag(file_path: str, thread_id: str):
         "filename": Path(file_path).name,
         "chunks": len(docs)
     }
-
-
-
 
 
 def retrieve_from_rag(query: str, thread_id: str, k: int = 4) -> str:
