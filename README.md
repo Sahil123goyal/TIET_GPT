@@ -1,6 +1,6 @@
 # TIET_GPT
 
-TIETGPT is an open-source **agentic AI chatbot** built with **Python, FastAPI, LangGraph, LangChain, Google Gemini, Tavily, ChromaDB, and SQLite**.
+TIETGPT is an open-source **agentic AI chatbot** built with **Python, FastAPI, LangGraph, LangChain, Groq, Tavily, ChromaDB, and SQLite**.
 
 It supports real-time streaming chat, document uploads, retrieval-augmented generation (RAG), web search, conversation memory, and a simple web UI.
 
@@ -8,7 +8,7 @@ It supports real-time streaming chat, document uploads, retrieval-augmented gene
 
 ## Features
 
-* Chat with an AI agent powered by Google Gemini
+* Chat with an AI agent powered by Groq
 * Stream responses in real time
 * Upload documents such as PDF, DOCX, TXT, MD, PY, and CSV
 * Use uploaded files as context through RAG
@@ -28,7 +28,6 @@ This project combines:
 * **Jinja2** for rendering the frontend UI
 * **LangGraph** for agent orchestration
 * **LangChain** for tools, messages, and RAG workflow
-* **Google Gemini** as the LLM provider
 * **Tavily** for web search
 * **ChromaDB** for vector search over uploaded documents
 * **SQLite** for conversation and persistence
@@ -43,7 +42,7 @@ Make sure you have the following installed:
 * Python 3.11
 * pip or conda
 * Git
-* Google API key for Gemini
+* Groq API key for chatbot
 * Tavily API key for web search
 
 Optional for deployment:
@@ -97,8 +96,8 @@ pip install -r requirements.txt
 Create a `.env` file in the project root directory.
 
 ```env
-GOOGLE_API_KEY=your_google_api_key
-GOOGLE_MODEL=gemini-4-hydrogen
+groq_API_KEY=your_groq_api_key
+GROQ_MODEL=qwen/qwen-3.8-27b
 
 TAVILY_API_KEY=your_tavily_api_key
 
@@ -308,8 +307,8 @@ AWS_SECRET_ACCESS_KEY
 AWS_DEFAULT_REGION
 ECR_REPO
 
-GOOGLE_API_KEY
-GOOGLE_MODEL
+GROQ_API_KEY
+GROQ_MODEL
 TAVILY_API_KEY
 LANGSMITH_TRACING
 LANGSMITH_ENDPOINT
@@ -328,7 +327,7 @@ Example:
 ```text
 AWS_DEFAULT_REGION=us-east-1
 ECR_REPO=TIETgpt
-GOOGLE_MODEL=gemini-4-hydrogen
+GROQ_MODEL=qwen/qwen3.8-27b
 LANGSMITH_TRACING=true
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 LANGSMITH_PROJECT=TIETgpt
